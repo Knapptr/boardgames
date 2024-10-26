@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import {
   AspectRatio,
@@ -8,7 +7,6 @@ import {
   Chip,
   CssBaseline,
   CssVarsProvider,
-  DialogContent,
   DialogTitle,
   Input,
   List,
@@ -235,7 +233,7 @@ const AddGameModal = ({
 };
 const MainDisplay = ({ viewState }: { viewState: ViewMode }) => {
   const [addGameVisible, setAddGameVisible] = useState(false);
-  const innerContent = (state: ViewMode) => {
+  const innerContent = (viewState: ViewMode) => {
     switch (viewState) {
       case "GAMES": {
         return (
