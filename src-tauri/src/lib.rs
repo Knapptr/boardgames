@@ -1,15 +1,10 @@
 mod db;
+mod gamestructs;
 mod migrations;
 mod queries;
+mod commands;
 use db::migrations;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-async fn bgg_games_query(query: &str) -> Result<String, ()> {
-    match queries::get_list_of_games_by_title(query, false).await{
-        Ok(r) => Ok(r),
-        Err(e) => Err(())
-    }
-}
 
 use migrations::migrate;
 use rusqlite::Connection;
@@ -32,7 +27,7 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![bgg_games_query])
+        .invoke_handler(tauri::generate_handler![commands::bgg_games_query,commands::bgg_game_from_id])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
