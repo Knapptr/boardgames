@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  ReactEventHandler,
+  useEffect,
+  useState,
+} from "react";
 import "./App.css";
 import {
   AspectRatio,
@@ -17,11 +22,14 @@ import {
   ModalClose,
   ModalDialog,
   Sheet,
+  Stack,
   Typography,
 } from "@mui/joy";
 import { Casino, EmojiEvents, PeopleAlt } from "@mui/icons-material";
 import useBggQuery from "./hooks/useBggQuery";
 import useBggDetails from "./hooks/useBggDetails";
+import { invoke } from "@tauri-apps/api/core";
+import useGetPlayers from "./hooks/useGetPlayers";
 
 const sidebarWidth = 200;
 
@@ -126,10 +134,27 @@ const SelectedGameDetails = ({ bggId }: { bggId: string }) => {
   }, [bggId]);
   return (
     game && (
-      <Box overflow="scroll">
-        <Typography component="h2">
-          {game.name} {game.published}
-        </Typography>
+      <Box flex={0.7} overflow="scroll">
+        <Box
+          display="flex"
+          position="sticky"
+          top={0}
+          zIndex={100}
+          bgcolor="linen"
+          py={3}
+          alignItems="center"
+        >
+          <Box px={3}>
+            <Typography component="h2">
+              {game.name} {game.published}
+            </Typography>
+            <Typography level="body-xs">Bgg id: {game.bgg_id}</Typography>
+          </Box>
+          <Box flex={1}>
+            <Button>Add Game</Button>
+          </Box>
+        </Box>
+        <Box overflow="scroll"></Box>
         {game.image_url && (
           <Box display="inline">
             <AspectRatio minHeight={100} maxHeight={400} objectFit="contain">
@@ -223,16 +248,69 @@ const AddGameModal = ({
               ))}
             </List>
           </Box>
-          <Box flex={0.7} overflow="scroll" border="2px solid">
-            {selectedBggId && <SelectedGameDetails bggId={selectedBggId} />}
-          </Box>
+          {selectedBggId && <SelectedGameDetails bggId={selectedBggId} />}
         </Box>
       </ModalDialog>
     </Modal>
   );
 };
+
+const AddPlayerModal = ({
+  open,
+  closeModal,
+}: {
+  open: boolean;
+  closeModal: () => void;
+}) => {
+  const [name, setName] = useState("");
+
+  const clearName = () => {
+    setName("");
+  };
+  const handleNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setName(e.target.value);
+  };
+  const handleClose = () => {
+    clearName();
+    closeModal();
+  };
+
+  const handleAddPlayer = async () => {
+    try {
+      const player_id: number = await invoke("create_player", { name });
+      console.log("Player added succesfully");
+      handleClose();
+    } catch (e) {
+      console.log("Error adding player: ", { e });
+    }
+  };
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <ModalDialog>
+        <ModalClose />
+        <DialogTitle>Add Player</DialogTitle>
+        <Input
+          placeholder="Player Name"
+          value={name}
+          onChange={handleNameChange}
+        />
+        <Button disabled={name.length === 0} onClick={handleAddPlayer}>
+          Add
+        </Button>
+      </ModalDialog>
+    </Modal>
+  );
+};
+const PlayerList = ()=>{
+  const {players,getPlayers} = useGetPlayers();
+  useEffect(()=>{getPlayers()},[getPlayers]);
+  return <List>
+    {players.map(p=><ListItem><ListItemContent>{p.name}</ListItemContent></ListItem>)}
+    </List>
+}
 const MainDisplay = ({ viewState }: { viewState: ViewMode }) => {
   const [addGameVisible, setAddGameVisible] = useState(false);
+  const [addPlayerVisible, setAddPlayerVisible] = useState(false);
   const innerContent = (viewState: ViewMode) => {
     switch (viewState) {
       case "GAMES": {
@@ -254,7 +332,20 @@ const MainDisplay = ({ viewState }: { viewState: ViewMode }) => {
         return <Typography> Plays View </Typography>;
       }
       case "PLAYERS": {
-        return <Typography>Players View </Typography>;
+        return (
+          <Box flex={1} height="100dvh" display="flex" flexDirection="column">
+            <AddPlayerModal
+              open={addPlayerVisible}
+              closeModal={() => setAddPlayerVisible(false)}
+            />
+            <Box p={2}>
+              <Button onClick={() => setAddPlayerVisible(true)}>
+                Add Player
+              </Button>
+            </Box>
+          <PlayerList />
+          </Box>
+        );
       }
       default: {
         return <Typography>INVALID VIEW</Typography>;

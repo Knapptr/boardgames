@@ -21,6 +21,7 @@ const useBggDetails = ()=>{
   const [game,setGame] = useState<Game | null>(null)
 const getGameById = async (id:string)=>{
   const result: Game = await invoke("bgg_game_from_id", {id});
+  console.log({result});
   setGame(result);
 }
 return {game,getGameById}

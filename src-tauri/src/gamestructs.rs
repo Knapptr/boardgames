@@ -60,6 +60,15 @@ impl GameItem {
     )
 
     }
+
+    fn save_to_db(&self)->Result<(),()>{
+        // Insert game
+        // Insert Categories
+        // Insert Mechanics
+        // Insert Designers
+        // Insert Artists
+        todo!()
+    }
     fn from_bgg_xml(
         xml: &str,
     ) -> Result<Self, String> {
@@ -75,12 +84,18 @@ impl GameItem {
         let mut published = None;
         let mut image_url = None;
         let mut player_poll = "N/A".to_string();
-        let id:Option<String> = parsed.root_element().attribute("id").map(|i|i.to_string());
-        let game_type:Option<GameType> = parsed.root_element().attribute("type").map(|i| GameType::from_str(i).expect("Error getting gametype"));
+        let mut id = None;
+        let mut game_type = None;
         for item_child in parsed.root_element().children() {
+                if item_child.tag_name().name() == "item"{
+                    game_type = item_child.attribute("type").map(|i|GameType::from_str(i).expect("Error making game type"));
+id = item_child.attribute("id").map(|i|i.to_string());
+                }
             for data in item_child.children() {
                 if data.tag_name().name() == "name" {
-                    name = data.attribute("value").unwrap().into();
+                    if let Some(name_type) = data.attribute("type"){
+                       if name_type == "primary" {name = data.attribute("value").unwrap().into()}
+                    }
                 }
                 if data.tag_name().name() == "yearpublished" {
                     published = data.attribute("value").unwrap().parse::<i32>().ok()
