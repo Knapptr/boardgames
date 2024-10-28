@@ -26,6 +26,13 @@ impl Player {
             .collect();
         Ok(players)
     }
+    pub fn delete_by_id(dbConnection: &mut DbPoolWrapper, id: i32) -> Result<(), ()> {
+        dbConnection
+            .db
+            .execute("DELETE FROM player WHERE id = $1", [id])
+            .expect("Error deleting player");
+        Ok(())
+    }
     pub fn create(name: &str, dbConnection: &mut DbPoolWrapper) -> Result<Player, ()> {
         // try to create a player and return it if successful
         // trim input

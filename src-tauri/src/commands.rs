@@ -31,6 +31,12 @@ pub async fn create_player(
 }
 
 #[tauri::command]
+pub async fn delete_player(state: State<'_, Mutex<DbPoolWrapper>>, id: i32) -> Result<(), ()> {
+    let mut connection = state.lock().expect("Error with state mutex");
+    Player::delete_by_id(&mut connection, id)
+}
+
+#[tauri::command]
 pub async fn get_players(state: State<'_, Mutex<DbPoolWrapper>>) -> Result<Vec<Player>, ()> {
     let mut connection = state.lock().expect("Error with state mutex");
     Player::get_all_from_db(&mut connection)
