@@ -14,15 +14,26 @@ import {
   ModalDialog,
   Typography,
 } from "@mui/joy";
-import useBggDetails from "../hooks/useBggDetails";
+import useBggDetails, { Game } from "../hooks/useBggDetails";
 import useBggQuery from "../hooks/useBggQuery";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import useGetGames from "../hooks/useGetGames";
 
+export interface OwnedGame {
+  id: number;
+  meta: Game;
+}
 export const SelectedGameDetails = ({ bggId }: { bggId: string }) => {
   const { game, getGameById } = useBggDetails();
   useEffect(() => {
     getGameById(bggId);
   }, [bggId]);
+  const handleSave = async () => {
+    console.log("Saving");
+    const result: OwnedGame = await invoke("save_game_from_bgg", { game });
+    console.log({ result });
+  };
   return (
     game && (
       <Box flex={0.7} overflow="scroll">
@@ -42,7 +53,7 @@ export const SelectedGameDetails = ({ bggId }: { bggId: string }) => {
             <Typography level="body-xs">Bgg id: {game.bgg_id}</Typography>
           </Box>
           <Box flex={1}>
-            <Button>Add Game</Button>
+            <Button onClick={handleSave}>Add Game</Button>
           </Box>
         </Box>
         <Box overflow="scroll"></Box>
@@ -146,3 +157,11 @@ export const AddGameModal = ({
   );
 };
 
+export const GamesList = ()=>{
+  const {queryGames,games} = useGetGames();
+  useEffect(()=>{
+    queryGames();
+  },[queryGames])
+
+  return <List>{games.map(game=><ListItem><ListItemContent>{game.meta.name}</ListItemContent></ListItem>)}</List>
+}

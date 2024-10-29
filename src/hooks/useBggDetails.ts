@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GameType } from "./useBggQuery";
 import { invoke } from "@tauri-apps/api/core";
 
-interface Game{
+export interface Game{
     game_type: GameType,
     name: String,
     published: number | undefined

@@ -11,7 +11,7 @@ pub fn migrate(db_connection: &mut Connection) -> rusqlite_migration::Result<()>
         ),
         M::up(
             "CREATE TABLE game (
-            id INTEGER NOT NULL,
+            id INTEGER NOT NULL PRIMARY KEY,
             name TEXT NOT NULL,
             description TEXT,
            min_players INTEGER,

@@ -37,7 +37,9 @@ pub fn run() {
             commands::bgg_game_from_id,
             commands::create_player,
             commands::get_players,
-            commands::delete_player
+            commands::delete_player,
+            commands::save_game_from_bgg,
+            commands::get_games,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

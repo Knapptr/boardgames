@@ -16,7 +16,7 @@ import useBggQuery from "./hooks/useBggQuery";
 import { invoke } from "@tauri-apps/api/core";
 import useGetPlayers from "./hooks/useGetPlayers";
 import Sidebar from "./components/sidebar";
-import { AddGameModal } from "./components/GamesView";
+import { AddGameModal, GamesList } from "./components/GamesView";
 import { PlayersView } from "./components/Players";
 
 export type ViewMode = "GAMES" | "PLAYERS" | "PLAYS";
@@ -65,6 +65,7 @@ const MainDisplay = ({ viewState }: { viewState: ViewMode }) => {
             <Box p={2}>
               <Button onClick={() => setAddGameVisible(true)}>Add Game</Button>
             </Box>
+          <GamesList />
           </Box>
         );
       }
